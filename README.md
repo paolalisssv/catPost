@@ -21,7 +21,7 @@ npm run start
 ####  Views
 
 Home view
-![Vista home](readmeImgs/detail.png)
+![Vista home](readmeImgs/home.png)
 
 Detail view
 ![Vista detail](readmeImgs/detail.png)

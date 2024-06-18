@@ -7,6 +7,7 @@ import Filter from '../components/Filter';
 
 const MAX_RESULTS = 5;
 
+//Request to get the cats and the user information
 const fetchUsersCats = async ({pageParam}: {pageParam: number}, {nationality}: {nationality: string})=>{
   const [response, responseCats] = await Promise.all([
     fetch(`https://randomuser.me/api/?nat=${nationality}&page=${pageParam}&results=${MAX_RESULTS}`),
@@ -16,6 +17,7 @@ const fetchUsersCats = async ({pageParam}: {pageParam: number}, {nationality}: {
   const { results: todosResults } = await response.json();
   const { data: todosCatsResults } = await responseCats.json();
 
+  // Creation of the array with mixed cat and user information
   const allResult = todosResults.map((accountInfo: any, index: any) => ({
     accountInfo,
     cat: todosCatsResults[index]
@@ -27,6 +29,7 @@ const fetchUsersCats = async ({pageParam}: {pageParam: number}, {nationality}: {
 const HomePage = () => {
   const observer = useRef<IntersectionObserver>()
   const navigate = useNavigate();
+  // Get id to show only posts for country
   let { id } = useParams();
   const nationality = id ? id :''
   const filters = [
@@ -35,6 +38,7 @@ const HomePage = () => {
     {nationality: 'mx', title: 'Mexico', url:()=>window.open('/mx','_blank')},
   ]
 
+  //infinite scroll implementation
   const {data, error, isLoading, isFetching, hasNextPage, fetchNextPage} = useInfiniteQuery({
     queryKey: ['info'],
     queryFn:({pageParam})=> fetchUsersCats({pageParam}, {nationality}),
@@ -43,6 +47,7 @@ const HomePage = () => {
     }
   })
 
+  //Function to observe the end of the page
   const lastElementRef = useCallback(
     (node:HTMLDivElement)=>{
         if (isLoading) return;
@@ -59,12 +64,14 @@ const HomePage = () => {
     [fetchNextPage, hasNextPage, isFetching, isLoading]
   )
 
+  // Memoized posts
   const todos = useMemo(()=>{
     return data?.pages.reduce((acc, page)=>{
         return [...acc, ...page];
     },[])
   },[data])
 
+  //loading and error validations
   if(isLoading) return <Loading />
   if(error) return <div className='flex items-center flex-col justify-center h-dvh'><p>Sorry, there was a error. Try again.</p></div>
 
@@ -75,6 +82,7 @@ const HomePage = () => {
       {
         todos &&
           todos.map((item: any)=>
+            // custom component card
             <Card 
               key={item.accountInfo.login.uuid} 
               lastElementRef={lastElementRef} 
